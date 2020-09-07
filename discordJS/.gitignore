@@ -1,0 +1,5 @@
+build/
+src/config.json
+
+### VS Code ###
+.vscode/

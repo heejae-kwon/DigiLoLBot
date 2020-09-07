@@ -2,6 +2,7 @@ import Discord from 'discord.js';
 import config from './config.json';
 import ChampionMap from './common/ChampionMap'
 import rotation from './commands/rotation'
+import serverStatus from './commands/server-status'
 
 
 const main = async () => {
@@ -20,8 +21,11 @@ const main = async () => {
     const command = args.shift()?.toLowerCase();
 
     switch (command) {
-      case 'rotation': {
+      case '로테이션': {
         rotation(client, msg, args);
+      } break;
+      case '서버상태': {
+        serverStatus(client, msg, args);
       } break;
 
     }
