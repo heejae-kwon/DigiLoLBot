@@ -36,9 +36,15 @@ object LeagueEntry {
       requestMethod = "GET"
       if(responseCode == HttpURLConnection.HTTP_OK) {
         val res = JsonParser.parseString(inputStream.bufferedReader().readText()).asJsonArray
+        val entries = mutableListOf<LeagueEntryDTO>()
+        res.forEach { entry ->
+          run{
+            entries.add(gson.fromJson(entry.asJsonObject.toString(), LeagueEntryDTO::class.java))
+          }
+        }
 
-       return listOf(gson.fromJson(res[0].asJsonObject.toString(), LeagueEntryDTO::class.java),
-               gson.fromJson(res[1].asJsonObject.toString(), LeagueEntryDTO::class.java))
+
+       return entries
       }
     }
     return null

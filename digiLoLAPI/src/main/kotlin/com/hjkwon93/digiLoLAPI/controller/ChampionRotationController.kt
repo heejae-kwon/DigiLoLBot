@@ -1,9 +1,8 @@
 package com.hjkwon93.digiLoLAPI.controller
 
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
-import com.hjkwon93.digiLoLAPI.ChampionMap
+import com.hjkwon93.digiLoLAPI.common.ChampionMap
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
