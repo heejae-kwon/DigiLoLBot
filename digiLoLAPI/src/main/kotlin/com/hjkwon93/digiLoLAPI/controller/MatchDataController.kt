@@ -2,6 +2,8 @@ package com.hjkwon93.digiLoLAPI.controller
 
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import com.hjkwon93.digiLoLAPI.common.ChampionIdMap
+import com.hjkwon93.digiLoLAPI.common.QueueType
 import com.hjkwon93.digiLoLAPI.common.Summoner
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.bind.annotation.GetMapping
@@ -12,8 +14,8 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 @RestController
-@RequestMapping("/api/match")
-class GetLatestMatchDataByNameController {
+@RequestMapping("/api/matches")
+class MatchDataController {
   @Value("\${apikey}")
   private lateinit var apikey: String
 
@@ -41,7 +43,7 @@ class GetLatestMatchDataByNameController {
     val url = URL("https://kr.api.riotgames.com/lol/match/v4/matchlists/by-account/$encryptedAccountId?api_key=$apikey")
     with(url.openConnection() as HttpURLConnection) {
       requestMethod = "GET"
-      if (responseCode != HttpURLConnection.HTTP_OK) {
+      if (responseCode == HttpURLConnection.HTTP_OK) {
         val matchListObj = gson.fromJson(inputStream.bufferedReader().readText(), MatchlistDto::class.java)
         matchList = matchListObj.matches
       }
@@ -259,7 +261,7 @@ class GetLatestMatchDataByNameController {
     val url = URL("https://kr.api.riotgames.com/lol/match/v4/matches/$matchId?api_key=$apikey")
     with(url.openConnection() as HttpURLConnection) {
       requestMethod = "GET"
-      if (responseCode != HttpURLConnection.HTTP_OK) {
+      if (responseCode == HttpURLConnection.HTTP_OK) {
         return gson.fromJson(inputStream.bufferedReader().readText(), MatchDto::class.java)
       }
     }
@@ -269,25 +271,45 @@ class GetLatestMatchDataByNameController {
 
   @GetMapping("")
   fun index(@RequestParam(value = "summonerName", required = true) summonerName: String): String {
+    val gson = Gson()
     val lolId = summonerName.replace(" ", "%20")
     val summoner = Summoner.getSummoner(lolId, apikey) ?: return "{error: \"Fail searching summoner\"}"
     val matchList = getMatchList(summoner.accountId)
-    if (matchList.isEmpty()) {
-      return "{error: \"Empty match list\"}"
-    }
-    for (match in matchList) {
+
+    val matchObjList = mutableListOf<JsonObject>()
+    val matchSize = if(matchList.size > 10) 10 else matchList.size
+    var winCount = 0
+    for (i in 0 until matchSize) {
+      val match = matchList[i]
+      if(match.queue !in 400..450){
+        continue
+      }
+      //queueType
+      val champId = match.champion
       val gameData = getGameData(match.gameId) ?: return "{error: \"Cannot get game data\"}"
-      val participants = gameData.participants
+      val champInfo = gameData.participants.find { it.championId == champId }
+
+      val matchObj = JsonObject()
+      matchObj.add("champion", gson.toJsonTree(ChampionIdMap.map[champId]))
+      matchObj.add("kills", gson.toJsonTree(champInfo?.stats?.kills))
+      matchObj.add("deaths", gson.toJsonTree(champInfo?.stats?.deaths))
+      matchObj.add("assists", gson.toJsonTree(champInfo?.stats?.assists))
+      matchObj.add("win", gson.toJsonTree(champInfo?.stats?.win))
+      matchObj.add("queueType", gson.toJsonTree(QueueType.map[match.queue]))
+      if(champInfo?.stats?.win!!){
+        ++winCount
+      }
+
+      matchObjList.add(matchObj)
     }
 
-
-
-
-
-
-
-
-    return ""
+    val returnObj = JsonObject()
+    returnObj.add("icon",gson.toJsonTree( summoner.profileIconId))
+    returnObj.add("name", gson.toJsonTree(summoner.name))
+    returnObj.add("wins", gson.toJsonTree(winCount))
+    returnObj.add("loses", gson.toJsonTree(matchSize-winCount))
+    returnObj.add("matches", gson.toJsonTree(matchObjList))
+    return returnObj.toString()
   }
 
 

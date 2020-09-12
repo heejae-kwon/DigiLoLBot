@@ -1,20 +1,17 @@
 package com.hjkwon93.digiLoLAPI.common
 
-import com.google.gson.Gson
-import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import java.net.HttpURLConnection
 import java.net.URL
 
-object ChampionMap {
-  val map = mutableMapOf<Int,String>()
+object ChampionIdMap {
+ val map = mutableMapOf<Int,String>()
 
   init {
-    var jsonObj: JsonObject
-    val url = URL("http://ddragon.leagueoflegends.com/cdn/10.16.1/data/en_US/champion.json")
+    val url = URL("https://ddragon.leagueoflegends.com/cdn/10.16.1/data/en_US/champion.json")
     with(url.openConnection() as HttpURLConnection){
       requestMethod = "GET"
-      jsonObj = JsonParser.parseString(inputStream.bufferedReader().readText()).asJsonObject
+      val jsonObj = JsonParser.parseString(inputStream.bufferedReader().readText()).asJsonObject
       val data = jsonObj.get("data").asJsonObject
       val keys = data.keySet()
       keys.forEach{champName->

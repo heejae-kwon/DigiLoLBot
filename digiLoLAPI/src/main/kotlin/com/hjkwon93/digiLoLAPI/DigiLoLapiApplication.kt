@@ -1,6 +1,7 @@
 package com.hjkwon93.digiLoLAPI
 
-import com.hjkwon93.digiLoLAPI.common.ChampionMap
+import com.hjkwon93.digiLoLAPI.common.ChampionIdMap
+import com.hjkwon93.digiLoLAPI.common.QueueType
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
@@ -8,6 +9,7 @@ import org.springframework.boot.runApplication
 class DigiLoLapiApplication
 
 fun main(args: Array<String>) {
-    print(ChampionMap)
+    print(ChampionIdMap)
+  print(QueueType)
 	runApplication<DigiLoLapiApplication>(*args)
 }

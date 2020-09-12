@@ -2,7 +2,7 @@ package com.hjkwon93.digiLoLAPI.controller
 
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import com.hjkwon93.digiLoLAPI.common.ChampionMap
+import com.hjkwon93.digiLoLAPI.common.ChampionIdMap
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -31,7 +31,7 @@ class ChampionRotationController {
     with(url.openConnection() as HttpURLConnection){
       requestMethod = "GET"
       if(responseCode != HttpURLConnection.HTTP_OK) {
-        return "Fail getting rotations"
+        return "{error: \"Fail getting rotations\"}"
       }
       jsonString = inputStream.bufferedReader().readText()
     }
@@ -39,7 +39,7 @@ class ChampionRotationController {
     val champList = mutableListOf<String>()
     champInfo.freeChampionIds.forEach{e->
       run {
-        champList.add(ChampionMap.map[e].toString())
+        champList.add(ChampionIdMap.map[e]!!)
       }
     }
     val jo = JsonObject()

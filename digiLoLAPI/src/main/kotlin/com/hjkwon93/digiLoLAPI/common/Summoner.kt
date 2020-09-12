@@ -1,7 +1,6 @@
 package com.hjkwon93.digiLoLAPI.common
 
 import com.google.gson.Gson
-import org.springframework.beans.factory.annotation.Value
 import java.net.HttpURLConnection
 import java.net.URL
 

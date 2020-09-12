@@ -3,7 +3,7 @@ package com.hjkwon93.digiLoLAPI.controller
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import com.hjkwon93.digiLoLAPI.common.ChampionMap
+import com.hjkwon93.digiLoLAPI.common.ChampionIdMap
 import com.hjkwon93.digiLoLAPI.common.LeagueEntry
 import com.hjkwon93.digiLoLAPI.common.Summoner
 import org.springframework.beans.factory.annotation.Value
@@ -49,11 +49,11 @@ class SearchSummonerByNameController {
   @GetMapping("")
   fun index(@RequestParam(value = "summonerName", required = true) summonerName: String) : String {
     val lolId =  summonerName.replace(" ","%20")
-    val summoner = Summoner.getSummoner(lolId, apikey) ?: return "Fail searching summoner"
+    val summoner = Summoner.getSummoner(lolId, apikey) ?: return "{error: \"Fail searching summoner\"}"
     val leagueEntries =
-            LeagueEntry.getLeagueEntries(summoner.id, apikey) ?: return "Fail loading league entry"
+            LeagueEntry.getLeagueEntries(summoner.id, apikey) ?: return "{error: \"Fail loading league entry\"}"
     val bestChampMastery =
-            getBestChampionMastery(summoner.id, apikey) ?: return "Fail loading champ mastery"
+            getBestChampionMastery(summoner.id, apikey) ?: return "{error: \"Fail loading champ mastery\"}"
 
     val gson = Gson()
     val rankList = mutableListOf<JsonObject>()
@@ -72,7 +72,7 @@ class SearchSummonerByNameController {
     returnObj.add("icon", gson.toJsonTree(summoner.profileIconId))
     returnObj.add("name", gson.toJsonTree(summoner.name))
     returnObj.add("level", gson.toJsonTree(summoner.summonerLevel))
-    returnObj.add("bestChampion", gson.toJsonTree(ChampionMap.map[bestChampMastery.championId.toInt()]))
+    returnObj.add("bestChampion", gson.toJsonTree(ChampionIdMap.map[bestChampMastery.championId.toInt()]))
     returnObj.add("rank", gson.toJsonTree(rankList))
 
     return returnObj.toString()

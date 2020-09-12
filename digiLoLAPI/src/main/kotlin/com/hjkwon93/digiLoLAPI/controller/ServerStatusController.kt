@@ -62,7 +62,7 @@ class ServerStatusController {
     with(url.openConnection() as HttpURLConnection){
       requestMethod = "GET"
       if(responseCode != HttpURLConnection.HTTP_OK) {
-        return "Fail getting server status"
+        return "{error: \"Fail getting server status\"}"
       }
       jsonString = inputStream.bufferedReader().readText()
     }
