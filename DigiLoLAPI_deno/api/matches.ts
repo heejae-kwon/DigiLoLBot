@@ -2,7 +2,6 @@ import { Router, Status } from "https://deno.land/x/oak/mod.ts";
 import axiod from "https://deno.land/x/axiod/mod.ts";
 import config from "../config.ts";
 import getSummoner from "../common/getSummoner.ts";
-import getLeagueEntries from "../common/getLeagueEntries.ts";
 import ChampionIdMap from "../common/ChampionIdMap.ts";
 import QueueTypeMap from "../common/QueueTypeMap.ts";
 
@@ -254,6 +253,23 @@ const getGameData = async (matchId: number): Promise<MatchDto | null> => {
   }
 };
 
+//response interface
+interface MatchesData {
+  icon: number;
+  name: string;
+  wins: number;
+  loses: number;
+  matches: MatchData[];
+}
+interface MatchData {
+  champion: string;
+  kills: number;
+  deaths: number;
+  assists: number;
+  win: boolean;
+  queueType: string;
+}
+
 const router = new Router({ prefix: "/api" });
 router.get("/matches", async (ctx) => {
   let summonerName = ctx.request.url.searchParams.get("summonerName")!!;
@@ -261,7 +277,7 @@ router.get("/matches", async (ctx) => {
   const summoner = await getSummoner(summonerName);
   if (!summoner) {
     ctx.response.body = { error: "Cannot get summoner data" };
-    ctx.response.status = Status.NotFound
+    ctx.response.status = Status.NotFound;
     return;
   }
   const matches = await getMatches(summoner.accountId);
@@ -279,19 +295,20 @@ router.get("/matches", async (ctx) => {
     const gameData = await getGameData(match.gameId);
     if (!gameData) {
       ctx.response.body = { error: "Cannot get game data" };
+      ctx.response.status = Status.NotFound;
       return;
     }
     const champInfo = gameData.participants.find((it) =>
       it.championId === champId
-    );
+    )!!;
 
-    const matchObj = {
-      champion: ChampionIdMap.getChampionName(champId),
+    const matchObj: MatchData = {
+      champion: ChampionIdMap.getChampionName(champId)!!,
       kills: champInfo?.stats.kills,
       deaths: champInfo?.stats.deaths,
       assists: champInfo?.stats.assists,
       win: champInfo?.stats.win,
-      queueType: QueueTypeMap.getQueueType(match.queue),
+      queueType: QueueTypeMap.getQueueType(match.queue)!!,
     };
     if (champInfo?.stats?.win!!) {
       ++winCount;
@@ -305,7 +322,7 @@ router.get("/matches", async (ctx) => {
     wins: winCount,
     loses: matchSize - winCount,
     matches: matchObjList,
-  };
+  } as MatchesData;
 });
 
 export default router;

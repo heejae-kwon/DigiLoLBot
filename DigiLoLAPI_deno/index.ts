@@ -1,10 +1,12 @@
 import { Application, Router } from "https://deno.land/x/oak/mod.ts";
 import championRotationRouter from "./api/champion-rotations.ts";
-import serverStatusRouter from "./api/server-status.ts";
+import serviceStatusRouter from "./api/service-status.ts";
 import summonerRouter from "./api/search-summoner.ts";
 import matchesRouter from "./api/matches.ts";
+import spectatorRouter from "./api/spectator.ts";
 import ChampionIdMap from "./common/ChampionIdMap.ts";
 import QueueTypeMap from "./common/QueueTypeMap.ts";
+import config from "./config.ts";
 
 const main = async () => {
   try {
@@ -24,11 +26,12 @@ const main = async () => {
 
     app.use(router.routes());
     app.use(championRotationRouter.routes());
-    app.use(serverStatusRouter.routes());
+    app.use(serviceStatusRouter.routes());
     app.use(summonerRouter.routes());
     app.use(matchesRouter.routes());
+    app.use(spectatorRouter.routes());
 
-    await app.listen({ port: 8000 });
+    await app.listen({ port: config.port });
   } catch (error) {
     console.log(error);
   }

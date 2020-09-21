@@ -9,6 +9,11 @@ interface ChampionInfo {
   freeChampionIds: Array<number>;
 }
 
+//response interface
+interface ChampionRotationsData {
+  championRotations: string[];
+}
+
 const router = new Router({ prefix: "/api" });
 router.get("/champion-rotations", async (ctx) => {
   try {
@@ -16,11 +21,11 @@ router.get("/champion-rotations", async (ctx) => {
       `https://kr.api.riotgames.com/lol/platform/v3/champion-rotations?api_key=${config.apikey}`,
     );
     const championInfo: ChampionInfo = res.data;
-    const championRotation: Array<string> = [];
+    const championRotations: Array<string> = [];
     championInfo.freeChampionIds.forEach((champId) => {
-      championRotation.push(ChampionIdMap.getChampionName(champId)!!);
+      championRotations.push(ChampionIdMap.getChampionName(champId)!!);
     });
-    ctx.response.body = { championRotation };
+    ctx.response.body = { championRotations } as ChampionRotationsData;
   } catch (error) {
     console.log(error);
     ctx.response.body = { error: "Fail getting rotations" };

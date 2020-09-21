@@ -1,7 +1,6 @@
 import { Router, Status } from "https://deno.land/x/oak/mod.ts";
 import axiod from "https://deno.land/x/axiod/mod.ts";
 import config from "../config.ts";
-import { IAxiodResponse } from "https://deno.land/x/axiod@0.20.0-0/interfaces.ts";
 
 interface SharedStatus {
   locales: Array<string>;
@@ -41,13 +40,23 @@ interface Translation {
   content: string;
 }
 
+//response body interface
+interface ServiceStatusData {
+  services: ServiceData[];
+}
+interface ServiceData {
+  name: string;
+  status: string;
+  messages: string[];
+}
+
 const router = new Router({ prefix: "/api" });
-router.get("/server-status", async (ctx) => {
+router.get("/service-status", async (ctx) => {
   try {
     const res = await axiod.get(
       `https://kr.api.riotgames.com/lol/status/v3/shard-data?api_key=${config.apikey}`,
     );
-    const returnObj = Object();
+    const returnObj = { services: [] as ServiceData[] };
     const sharedStatus: SharedStatus = res.data;
     const services = sharedStatus.services;
     services.forEach((service) => {
@@ -55,12 +64,13 @@ router.get("/server-status", async (ctx) => {
       service.incidents.forEach((incident) => {
         statusMessage.push(incident.updates[0].content);
       });
-      returnObj[service.name] = {
+      returnObj.services.push({
+        name: service.name,
         status: service.status,
         messages: statusMessage,
-      };
+      });
     });
-    ctx.response.body = returnObj;
+    ctx.response.body = returnObj as ServiceStatusData;
   } catch (error) {
     console.log(error);
     ctx.response.body = { error: "Fail getting server status" };

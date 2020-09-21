@@ -34,6 +34,22 @@ const getBestChampionMastery = async (
   return null;
 };
 
+//response interface
+interface SearchSummonerData {
+  icon: number;
+  name: string;
+  level: number;
+  bestChampion: string;
+  leagueEntries: LeagueEntryData[];
+}
+interface LeagueEntryData {
+  tier: string;
+  rank: string;
+  leaguePoints: number;
+  wins: number;
+  loses: number;
+  queueType: "Ranked Solo" | "Ranked Flex" | string;
+}
 const router = new Router({ prefix: "/api" });
 router.get("/search-summoner", async (ctx) => {
   let summonerName = ctx.request.url.searchParams.get("summonerName")!!;
@@ -41,29 +57,29 @@ router.get("/search-summoner", async (ctx) => {
   const summoner = await getSummoner(summonerName);
   if (!summoner) {
     ctx.response.body = { error: "Cannot get summoner data" };
-    ctx.response.status = Status.NotFound
+    ctx.response.status = Status.NotFound;
     return;
   }
   const leagueEntries = await getLeagueEntries(summoner.id);
   if (!leagueEntries) {
     ctx.response.body = { error: "Cannot get league entries" };
-    ctx.response.status = Status.NotFound
+    ctx.response.status = Status.NotFound;
     return;
   }
   const bestChampMastery = await getBestChampionMastery(summoner.id);
   if (!bestChampMastery) {
     ctx.response.body = { error: "Cannot get champion mastery" };
-    ctx.response.status = Status.NotFound
+    ctx.response.status = Status.NotFound;
     return;
   }
 
-  const rankList: Array<object> = [];
+  const rankList: Array<LeagueEntryData> = [];
   for (const entry of leagueEntries) {
-    let queueType: string = "Ranked Flex";
+    let queueType = "Ranked Flex";
     if (entry.queueType == "RANKED_SOLO_5x5") {
       queueType = "Ranked Solo";
     }
-    const obj = {
+    const obj: LeagueEntryData = {
       tier: entry.tier,
       rank: entry.rank,
       leaguePoints: entry.leaguePoints,
@@ -80,6 +96,6 @@ router.get("/search-summoner", async (ctx) => {
     level: summoner.summonerLevel,
     bestChampion: ChampionIdMap.getChampionName(bestChampMastery.championId),
     leagueEntries: rankList,
-  };
+  } as SearchSummonerData;
 });
 export default router;
