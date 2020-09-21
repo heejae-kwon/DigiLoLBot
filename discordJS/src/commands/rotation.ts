@@ -1,31 +1,41 @@
+import { Client, Message, MessageEmbed } from "discord.js";
+import axios from "axios";
+import config from "../config";
 
-import { Client, Message, MessageEmbed } from 'discord.js'
-import axios from 'axios'
-import ChampionMap from '../common/ChampionMap'
-import config from '../config.json'
+//response interface
+interface ChampionRotationsData {
+  championRotations: string[];
+}
 
 const rotation = async (client: Client, msg: Message, args: string[]) => {
+  try {
+    const axiosRes = await axios.get(
+      `${config.server}/api/champion-rotations`,
+    );
+    const championRotations =
+      (axiosRes.data as ChampionRotationsData).championRotations;
 
-  const axiosRes = await axios.get("https://kr.api.riotgames.com/lol/platform/v3/champion-rotations?api_key=" + config.apikey);
-  const freeChampionIds: Array<number> = axiosRes.data.freeChampionIds;
+    let desc = "";
 
-  let desc = "";
+    championRotations.forEach((champName) => {
+      const emoji = (client.emojis.cache.find((emo) =>
+        emo.name === champName
+      ));
+      desc += `${emoji?.toString()}`;
+    });
 
-  freeChampionIds.forEach(id => {
-    const champName = ChampionMap.get().get(id);
-    const emoji = (client.emojis.cache.find(emo => emo.name === champName));
-    desc += `${emoji?.toString()}`;
-  });
-
-  const embed = new MessageEmbed()
-    // Set the title of the field
-    .setTitle(`This week's roatation`)
-    // Set the color of the embed
-    .setColor(0xff0000)
-    // Set the main content of the embed
-    .setDescription(desc);
-  // Send the embed to the same channel as the message
-  msg.channel.send(embed);
-}
+    const embed = new MessageEmbed()
+      // Set the title of the field
+      .setTitle(`이번주 로테이션`)
+      // Set the color of the embed
+      .setColor(0xff0000)
+      // Set the main content of the embed
+      .setDescription(desc);
+    // Send the embed to the same channel as the message
+    msg.channel.send(embed);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 export default rotation;
