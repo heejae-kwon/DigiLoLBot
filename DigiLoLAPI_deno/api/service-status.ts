@@ -1,6 +1,7 @@
 import { Router, Status } from "https://deno.land/x/oak/mod.ts";
 import axiod from "https://deno.land/x/axiod/mod.ts";
 import config from "../config.ts";
+import fixedEncodeURI from "../common/fixedEncodeURI.ts";
 
 interface SharedStatus {
   locales: Array<string>;
@@ -54,7 +55,9 @@ const router = new Router({ prefix: "/api" });
 router.get("/service-status", async (ctx) => {
   try {
     const res = await axiod.get(
-      `https://kr.api.riotgames.com/lol/status/v3/shard-data?api_key=${config.apikey}`,
+      fixedEncodeURI(
+        `https://kr.api.riotgames.com/lol/status/v3/shard-data?api_key=${config.apikey}`,
+      ),
     );
     const returnObj = { services: [] as ServiceData[] };
     const sharedStatus: SharedStatus = res.data;

@@ -1,4 +1,6 @@
 import axiod from "https://deno.land/x/axiod/mod.ts";
+import config from "../config.ts";
+import fixedEncodeURI from "./fixedEncodeURI.ts";
 class ChampionIdMap {
   private map: Map<number, string>;
   constructor() {
@@ -7,7 +9,9 @@ class ChampionIdMap {
   async init() {
     try {
       const res = await axiod.get(
-        "https://ddragon.leagueoflegends.com/cdn/10.18.1/data/en_US/champion.json",
+        fixedEncodeURI(
+          `https://ddragon.leagueoflegends.com/cdn/${config.gameVersion}/data/en_US/champion.json`,
+        ),
       );
       const championData = res.data.data;
       for (const key in championData) {

@@ -3,6 +3,7 @@ import axiod from "https://deno.land/x/axiod/mod.ts";
 import config from "../config.ts";
 import getSummoner from "../common/getSummoner.ts";
 import getLeagueEntries from "../common/getLeagueEntries.ts";
+import fixedEncodeURI from "../common/fixedEncodeURI.ts";
 import ChampionIdMap from "../common/ChampionIdMap.ts";
 
 interface ChampionMasteryDTO {
@@ -22,7 +23,9 @@ const getBestChampionMastery = async (
 ): Promise<ChampionMasteryDTO | null> => {
   try {
     const res = await axiod.get(
-      `https://kr.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/${encryptedSummonerId}?api_key=${config.apikey}`,
+      fixedEncodeURI(
+        `https://kr.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/${encryptedSummonerId}?api_key=${config.apikey}`,
+      ),
     );
     const masteries: ChampionMasteryDTO[] = res.data;
     if (masteries.length > 0) {
@@ -36,7 +39,7 @@ const getBestChampionMastery = async (
 
 //response interface
 interface SearchSummonerData {
-  icon: number;
+  icon: string;
   name: string;
   level: number;
   bestChampion: string;
@@ -53,7 +56,6 @@ interface LeagueEntryData {
 const router = new Router({ prefix: "/api" });
 router.get("/search-summoner", async (ctx) => {
   let summonerName = ctx.request.url.searchParams.get("summonerName")!!;
-  summonerName = summonerName?.replace(/ /gi, "%20");
   const summoner = await getSummoner(summonerName);
   if (!summoner) {
     ctx.response.body = { error: "Cannot get summoner data" };
@@ -90,11 +92,18 @@ router.get("/search-summoner", async (ctx) => {
     rankList.push(obj);
   }
 
+  const bestChampion = ChampionIdMap.getChampionName(
+    bestChampMastery.championId,
+  );
   ctx.response.body = {
-    icon: summoner.profileIconId,
+    icon: fixedEncodeURI(
+      `https://ddragon.leagueoflegends.com/cdn/${config.gameVersion}/img/profileicon/${summoner.profileIconId}.png`,
+    ),
     name: summoner.name,
     level: summoner.summonerLevel,
-    bestChampion: ChampionIdMap.getChampionName(bestChampMastery.championId),
+    bestChampion: fixedEncodeURI(
+      `https://ddragon.leagueoflegends.com/cdn/${config.gameVersion}/img/champion/${bestChampion}.png`,
+    ),
     leagueEntries: rankList,
   } as SearchSummonerData;
 });

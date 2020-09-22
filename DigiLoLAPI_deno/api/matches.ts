@@ -2,6 +2,7 @@ import { Router, Status } from "https://deno.land/x/oak/mod.ts";
 import axiod from "https://deno.land/x/axiod/mod.ts";
 import config from "../config.ts";
 import getSummoner from "../common/getSummoner.ts";
+import fixedEncodeURI from "../common/fixedEncodeURI.ts";
 import ChampionIdMap from "../common/ChampionIdMap.ts";
 import QueueTypeMap from "../common/QueueTypeMap.ts";
 
@@ -232,7 +233,9 @@ const getMatches = async (
   let matches: MatchReferenceDto[] = [];
   try {
     const res = await axiod.get(
-      `https://kr.api.riotgames.com/lol/match/v4/matchlists/by-account/${encryptedAccountId}?api_key=${config.apikey}`,
+      fixedEncodeURI(
+        `https://kr.api.riotgames.com/lol/match/v4/matchlists/by-account/${encryptedAccountId}?api_key=${config.apikey}`,
+      ),
     );
     matches = res.data.matches as MatchReferenceDto[];
   } catch (err) {
@@ -244,7 +247,9 @@ const getMatches = async (
 const getGameData = async (matchId: number): Promise<MatchDto | null> => {
   try {
     const res = await axiod.get(
-      `https://kr.api.riotgames.com/lol/match/v4/matches/${matchId}?api_key=${config.apikey}`,
+      fixedEncodeURI(
+        `https://kr.api.riotgames.com/lol/match/v4/matches/${matchId}?api_key=${config.apikey}`,
+      ),
     );
     return res.data as MatchDto;
   } catch (err) {
@@ -255,7 +260,7 @@ const getGameData = async (matchId: number): Promise<MatchDto | null> => {
 
 //response interface
 interface MatchesData {
-  icon: number;
+  icon: string;
   name: string;
   wins: number;
   loses: number;
@@ -273,7 +278,6 @@ interface MatchData {
 const router = new Router({ prefix: "/api" });
 router.get("/matches", async (ctx) => {
   let summonerName = ctx.request.url.searchParams.get("summonerName")!!;
-  summonerName = summonerName?.replace(/ /gi, "%20");
   const summoner = await getSummoner(summonerName);
   if (!summoner) {
     ctx.response.body = { error: "Cannot get summoner data" };
@@ -317,7 +321,9 @@ router.get("/matches", async (ctx) => {
     matchObjList.push(matchObj);
   }
   ctx.response.body = {
-    icon: summoner.profileIconId,
+    icon: fixedEncodeURI(
+      `https://ddragon.leagueoflegends.com/cdn/${config.gameVersion}/img/profileicon/${summoner.profileIconId}.png`,
+    ),
     name: summoner.name,
     wins: winCount,
     loses: matchSize - winCount,

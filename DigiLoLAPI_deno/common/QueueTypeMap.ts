@@ -1,4 +1,5 @@
 import axiod from "https://deno.land/x/axiod/mod.ts";
+import fixedEncodeURI from "./fixedEncodeURI.ts";
 class QueueTypeMap {
   private map: Map<number, string>;
   constructor() {
@@ -7,7 +8,9 @@ class QueueTypeMap {
   async init() {
     try {
       const res = await axiod.get(
-        "https://static.developer.riotgames.com/docs/lol/queues.json",
+        fixedEncodeURI(
+          "https://static.developer.riotgames.com/docs/lol/queues.json",
+        ),
       );
       const queueList: any[] = res.data;
       for (let queueObj of queueList) {

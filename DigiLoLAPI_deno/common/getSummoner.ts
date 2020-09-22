@@ -1,5 +1,6 @@
 import axiod from "https://deno.land/x/axiod/mod.ts";
 import config from "../config.ts";
+import fixedEncodeURI from "./fixedEncodeURI.ts";
 interface SummonerDTO {
   accountId: string;
   profileIconId: number;
@@ -15,7 +16,9 @@ const getSummoner = async (
 ): Promise<SummonerDTO | null> => {
   try {
     const res = await axiod.get(
-      `https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}?api_key=${config.apikey}`,
+      fixedEncodeURI(
+        `https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}?api_key=${config.apikey}`,
+      ),
     );
     return res.data;
   } catch (error) {

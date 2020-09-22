@@ -2,6 +2,7 @@ import { Client, Message, MessageEmbed } from "discord.js";
 import axios from "axios";
 import config from "../config";
 import converter from "number-to-words";
+import fixedEncodeURI from "../common/fixedEncodeURI";
 
 //response body interface
 interface ServiceStatusData {
@@ -15,7 +16,9 @@ interface ServiceData {
 
 const serviceStatus = async (client: Client, msg: Message, args: string[]) => {
   try {
-    const axiosRes = await axios.get(`${config.server}/api/service-status`);
+    const axiosRes = await axios.get(
+      fixedEncodeURI(`${config.server}/api/service-status`),
+    );
     const services = (axiosRes.data as ServiceStatusData).services;
 
     const embed = new MessageEmbed()
