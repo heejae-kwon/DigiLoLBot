@@ -239,7 +239,7 @@ const getMatches = async (
     );
     matches = res.data.matches as MatchReferenceDto[];
   } catch (err) {
-    console.log(err);
+    console.log(err.response.data);
   }
   return matches;
 };
@@ -253,7 +253,7 @@ const getGameData = async (matchId: number): Promise<MatchDto | null> => {
     );
     return res.data as MatchDto;
   } catch (err) {
-    console.log(err);
+    console.log(err.reponse.data);
     return null;
   }
 };

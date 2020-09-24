@@ -4,6 +4,8 @@ import serviceStatus from "./commands/service-status";
 import searchSummoner from "./commands/search-summoner";
 import matches from "./commands/matches";
 import config from "./config";
+import spectator from "./commands/spectator";
+import help from "./commands/help";
 
 const main = async () => {
   console.log(config);
@@ -18,27 +20,43 @@ const main = async () => {
     if (msg.content.slice(0, config.prefix.length) !== config.prefix) return;
 
     const args = msg.content.slice(config.prefix.length).trim().split(/ +/g);
-    const command = args.shift()?.toLowerCase();
+    const command = args.shift()?.toLocaleLowerCase();
 
     switch (command) {
-      case "로테이션":
+      case "-r":
+      case "--rotation":
         {
           await rotation(client, msg, args);
         }
         break;
-      case "서버상태":
+      case "-s":
+      case "--server-status":
         {
           await serviceStatus(client, msg, args);
         }
         break;
-      case "검색":
+      case "-u":
+      case "--user":
         {
           await searchSummoner(client, msg, args);
         }
         break;
-      case "전적":
+      case "-m":
+      case "--match":
         {
           await matches(client, msg, args);
+        }
+        break;
+      case "-w":
+      case "--watch":
+        {
+          await spectator(client, msg, args);
+        }
+        break;
+      case "-h":
+      case "--help":
+        {
+          await help(client, msg, args);
         }
         break;
     }

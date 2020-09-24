@@ -10,7 +10,7 @@ if (process.env.NODE_ENV === "production") {
 }
 
 export default {
-  prefix: "!",
+  prefix: "dlb",
   token: process.env.TOKEN,
   server: process.env.SERVER,
 };

@@ -17,22 +17,21 @@ const rotation = async (client: Client, msg: Message, args: string[]) => {
       (axiosRes.data as ChampionRotationsData).championRotations;
 
     const embed = new MessageEmbed()
-      // Set the title of the field
-      .setTitle(`이번주 로테이션`)
-      // Set the color of the embed
+      .setTitle(`This week's rotation`)
       .setColor(0xff0000);
-    // Set the main content of the embed
-    //     .setDescription(desc);
 
     championRotations.forEach((champName) => {
+      const champNameLowerCase = champName.toLocaleLowerCase();
       let name = "";
-      const emoji = (client.emojis.cache.find((emo) => emo.name === champName));
+      const emoji = (client.emojis.cache.find((emo) =>
+        emo.name.toLocaleLowerCase() === champNameLowerCase
+      ));
       let val = "";
       for (let i = 0; i < champName.length; ++i) {
         val += emoji?.toString();
       }
-      for (const char of Array.from(champName)) {
-        name += `:regional_indicator_${char.toLowerCase()}:`;
+      for (const char of Array.from(champNameLowerCase)) {
+        name += `:regional_indicator_${char}:`;
       }
       embed.addField(name, val, false);
     });

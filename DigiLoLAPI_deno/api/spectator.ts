@@ -60,11 +60,13 @@ const getCurrentGameInfo = async (
 ): Promise<CurrentGameInfo | null> => {
   try {
     const res = await axiod.get(
-      fixedEncodeURI(`https://kr.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/${encryptedId}?api_key=${config.apikey}`),
+      fixedEncodeURI(
+        `https://kr.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/${encryptedId}?api_key=${config.apikey}`,
+      ),
     );
     return res.data as CurrentGameInfo;
   } catch (error) {
-    console.log(error);
+    console.log(error.response.data);
   }
   return null;
 };
@@ -124,7 +126,8 @@ router.get("/spectator", async (ctx) => {
     };
     const leagueEntries = await getLeagueEntries(player.summonerId);
     const soloEntry = leagueEntries?.find((it) => {
-      it.queueType == "RANKED_SOLO_5x5";
+      return it.queueType.toString().toLocaleLowerCase() ===
+        "RANKED_SOLO_5x5".toLocaleLowerCase();
     });
     if (soloEntry) {
       playerObj.tier = soloEntry.tier;

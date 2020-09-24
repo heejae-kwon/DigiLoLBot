@@ -19,7 +19,7 @@ class ChampionIdMap {
       }
       return true;
     } catch (error) {
-      console.log(error);
+      console.log(error.response.data);
       return false;
     }
   }

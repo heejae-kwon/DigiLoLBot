@@ -32,7 +32,7 @@ const getBestChampionMastery = async (
       return masteries[0];
     }
   } catch (error) {
-    console.log(error);
+    console.log(error.response.data);
   }
   return null;
 };

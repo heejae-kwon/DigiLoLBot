@@ -46,7 +46,7 @@ const searchSummoner = async (client: Client, msg: Message, args: string[]) => {
 
     summoner.leagueEntries.forEach((entry) => {
       const emoji = (client.emojis.cache.find((emo) =>
-        emo.name.toLowerCase() === entry.tier.toLowerCase()
+        emo.name.toLocaleLowerCase() === entry.tier.toLocaleLowerCase()
       ));
       const percentage = entry.wins + entry.loses !== 0
         ? entry.wins / (entry.wins + entry.loses)

@@ -22,9 +22,7 @@ const serviceStatus = async (client: Client, msg: Message, args: string[]) => {
     const services = (axiosRes.data as ServiceStatusData).services;
 
     const embed = new MessageEmbed()
-      // Set the title of the field
       .setTitle(`리그 오브 레전드 서비스 상태`)
-      // Set the color of the embed
       .setColor(0x00FF00)
       .setDescription("");
 

@@ -1,7 +1,6 @@
 import { Client, Message, MessageEmbed } from "discord.js";
 import axios from "axios";
 import config from "../config";
-import converter from "number-to-words";
 import fixedEncodeURI from "../common/fixedEncodeURI";
 
 //response interface
@@ -33,7 +32,6 @@ const matches = async (client: Client, msg: Message, args: string[]) => {
       ),
     );
     const matchesData = (axiosRes.data as MatchesData);
-    //const opggUserName = summoner.name.replace(/ /gi, "+");
 
     const embed = new MessageEmbed()
       .setColor(0x0099ff)
@@ -56,15 +54,15 @@ const matches = async (client: Client, msg: Message, args: string[]) => {
       while (kda.length < 7) {
         kda += " ";
       }
-      const emoji = (client.emojis.cache.find((emo) =>
-        emo.name === match.champion
+      const champEmoji = (client.emojis.cache.find((emo) =>
+        emo.name.toLocaleLowerCase() === match.champion.toLocaleLowerCase()
       ));
-      let kdaStr = `${match.kills}/${match.deaths}/${match.assists}`;
-      while (kdaStr.length < 8) {
-        kdaStr += " ";
+      let kdaForm = `${match.kills}/${match.deaths}/${match.assists}`;
+      while (kdaForm.length < 8) {
+        kdaForm += " ";
       }
 
-      fieldValue += `${winEmoji} ${emoji?.toString()}` + "`" + kdaStr +
+      fieldValue += `${winEmoji} ${champEmoji?.toString()}` + "`" + kdaForm +
         `\t${kda}  ${match.queueType}` + "`\n";
     });
 
