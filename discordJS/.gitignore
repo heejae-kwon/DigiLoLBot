@@ -1,5 +1,5 @@
 build/
-src/config.json
+node_modules
+.env.*
 
 ### VS Code ###
-.vscode/

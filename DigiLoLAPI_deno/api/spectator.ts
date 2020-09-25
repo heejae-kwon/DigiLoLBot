@@ -3,6 +3,7 @@ import axiod from "https://deno.land/x/axiod/mod.ts";
 import config from "../config.ts";
 import getSummoner from "../common/getSummoner.ts";
 import getLeagueEntries from "../common/getLeagueEntries.ts";
+import fixedEncodeURI from "../common/fixedEncodeURI.ts";
 import ChampionIdMap from "../common/ChampionIdMap.ts";
 import QueueTypeMap from "../common/QueueTypeMap.ts";
 
@@ -59,11 +60,13 @@ const getCurrentGameInfo = async (
 ): Promise<CurrentGameInfo | null> => {
   try {
     const res = await axiod.get(
-      `https://kr.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/${encryptedId}?api_key=${config.apikey}`,
+      fixedEncodeURI(
+        `https://kr.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/${encryptedId}?api_key=${config.apikey}`,
+      ),
     );
     return res.data as CurrentGameInfo;
   } catch (error) {
-    console.log(error);
+    console.log(error.response.data);
   }
   return null;
 };
@@ -89,7 +92,6 @@ interface SpectatorData {
 const router = new Router({ prefix: "/api" });
 router.get("/spectator", async (ctx) => {
   let summonerName = ctx.request.url.searchParams.get("summonerName")!!;
-  summonerName = summonerName?.replace(/ /gi, "%20");
   const summoner = await getSummoner(summonerName);
   if (!summoner) {
     ctx.response.body = { error: "Cannot get summoner data" };
@@ -124,7 +126,8 @@ router.get("/spectator", async (ctx) => {
     };
     const leagueEntries = await getLeagueEntries(player.summonerId);
     const soloEntry = leagueEntries?.find((it) => {
-      it.queueType == "RANKED_SOLO_5x5";
+      return it.queueType.toString().toLocaleLowerCase() ===
+        "RANKED_SOLO_5x5".toLocaleLowerCase();
     });
     if (soloEntry) {
       playerObj.tier = soloEntry.tier;
