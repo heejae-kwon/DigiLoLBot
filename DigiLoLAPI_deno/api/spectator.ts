@@ -1,8 +1,11 @@
-import { Router, Status } from "https://deno.land/x/oak/mod.ts";
+import { HttpError, Router, Status } from "https://deno.land/x/oak/mod.ts";
 import axiod from "https://deno.land/x/axiod/mod.ts";
 import config from "../config.ts";
-import getSummoner from "../common/getSummoner.ts";
-import getLeagueEntries from "../common/getLeagueEntries.ts";
+import { getSummoner, SummonerDTO } from "../common/getSummoner.ts";
+import {
+  getLeagueEntries,
+  LeagueEntryDTO,
+} from "../common/getLeagueEntries.ts";
 import fixedEncodeURI from "../common/fixedEncodeURI.ts";
 import ChampionIdMap from "../common/ChampionIdMap.ts";
 import QueueTypeMap from "../common/QueueTypeMap.ts";
@@ -57,7 +60,7 @@ interface GameCustomizationObject {
 
 const getCurrentGameInfo = async (
   encryptedId: String,
-): Promise<CurrentGameInfo | null> => {
+): Promise<CurrentGameInfo> => {
   try {
     const res = await axiod.get(
       fixedEncodeURI(
@@ -66,9 +69,8 @@ const getCurrentGameInfo = async (
     );
     return res.data as CurrentGameInfo;
   } catch (error) {
-    console.log(error.response.data);
+    throw error;
   }
-  return null;
 };
 
 // response interface
@@ -91,16 +93,27 @@ interface SpectatorData {
 }
 const router = new Router({ prefix: "/api" });
 router.get("/spectator", async (ctx) => {
-  let summonerName = ctx.request.url.searchParams.get("summonerName")!!;
-  const summoner = await getSummoner(summonerName);
-  if (!summoner) {
-    ctx.response.body = { error: "Cannot get summoner data" };
+  const summonerName = ctx.request.url.searchParams.get("summonerName")!!;
+
+  let summoner: SummonerDTO;
+  try {
+    summoner = await getSummoner(summonerName);
+  } catch (error) {
+    ctx.response.body = {
+      error: "Cannot get summoner data",
+      api: error.response.data,
+    };
     ctx.response.status = Status.NotFound;
     return;
   }
-  const currentGameInfo = await getCurrentGameInfo(summoner.id);
-  if (!currentGameInfo) {
-    ctx.response.body = { error: "Cannot find current game info" };
+  let currentGameInfo: CurrentGameInfo;
+  try {
+    currentGameInfo = await getCurrentGameInfo(summoner.id);
+  } catch (error) {
+    ctx.response.body = {
+      error: "Cannot find current game info",
+      api: error.response.data,
+    };
     ctx.response.status = Status.NotFound;
     return;
   }
@@ -124,7 +137,17 @@ router.get("/spectator", async (ctx) => {
       tier: "",
       rank: "",
     };
-    const leagueEntries = await getLeagueEntries(player.summonerId);
+    let leagueEntries: LeagueEntryDTO[];
+    try {
+      leagueEntries = await getLeagueEntries(player.summonerId);
+    } catch (error) {
+      ctx.response.body = {
+        error: "Cannot get league entries",
+        api: error.response.data,
+      };
+      ctx.response.status = Status.NotFound;
+      return;
+    }
     const soloEntry = leagueEntries?.find((it) => {
       return it.queueType.toString().toLocaleLowerCase() ===
         "RANKED_SOLO_5x5".toLocaleLowerCase();

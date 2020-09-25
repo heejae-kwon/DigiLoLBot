@@ -59,6 +59,12 @@ const main = async () => {
           await help(client, msg, args);
         }
         break;
+      default: {
+        const newMsg = new Discord.MessageEmbed().setDescription(
+          `Invalid command: ${command}. Try type "dlb -h"`,
+        );
+        msg.channel.send(newMsg);
+      }
     }
   });
 

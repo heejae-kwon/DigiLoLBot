@@ -1,7 +1,7 @@
 import axiod from "https://deno.land/x/axiod/mod.ts";
 import config from "../config.ts";
 import fixedEncodeURI from "./fixedEncodeURI.ts";
-interface SummonerDTO {
+export interface SummonerDTO {
   accountId: string;
   profileIconId: number;
   revisionDate: number;
@@ -11,20 +11,17 @@ interface SummonerDTO {
   summonerLevel: number;
 }
 
-const getSummoner = async (
+export const getSummoner = async (
   summonerName: string,
-): Promise<SummonerDTO | null> => {
+): Promise<SummonerDTO> => {
   try {
     const res = await axiod.get(
       fixedEncodeURI(
         `https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}?api_key=${config.apikey}`,
       ),
     );
-    return res.data;
+    return res.data as SummonerDTO;
   } catch (error) {
-    console.log(error.response.data);
+    throw error;
   }
-  return null;
 };
-
-export default getSummoner;

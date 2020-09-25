@@ -23,9 +23,8 @@ class QueueTypeMap {
       }
       return true;
     } catch (error) {
-      console.log(error.response.data);
+      throw error;
     }
-    return false;
   }
   getQueueType(queueId: number) {
     return this.map.get(queueId);

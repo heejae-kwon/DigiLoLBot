@@ -75,8 +75,10 @@ router.get("/service-status", async (ctx) => {
     });
     ctx.response.body = returnObj as ServiceStatusData;
   } catch (error) {
-    console.log(error.response.data);
-    ctx.response.body = { error: "Fail getting server status" };
+    ctx.response.body = {
+      error: "Fail getting server status",
+      api: error.response.data,
+    };
     ctx.response.status = Status.NotFound;
   }
 });

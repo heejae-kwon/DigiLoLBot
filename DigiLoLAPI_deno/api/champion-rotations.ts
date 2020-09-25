@@ -1,4 +1,4 @@
-import { HttpError, Router, Status } from "https://deno.land/x/oak/mod.ts";
+import { Router, Status } from "https://deno.land/x/oak/mod.ts";
 import axiod from "https://deno.land/x/axiod/mod.ts";
 import ChampionIdMap from "../common/ChampionIdMap.ts";
 import fixedEncodeURI from "../common/fixedEncodeURI.ts";
@@ -30,8 +30,10 @@ router.get("/champion-rotations", async (ctx) => {
     });
     ctx.response.body = { championRotations } as ChampionRotationsData;
   } catch (error) {
-    console.log(error.response.data);
-    ctx.response.body = { error: "Fail getting rotations" };
+    ctx.response.body = {
+      error: "Fail getting rotations",
+      api: error.response.data,
+    };
     ctx.response.status = Status.NotFound;
   }
 });

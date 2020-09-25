@@ -2,7 +2,7 @@ import axiod from "https://deno.land/x/axiod/mod.ts";
 import config from "../config.ts";
 import fixedEncodeURI from "./fixedEncodeURI.ts";
 
-interface LeagueEntryDTO {
+export interface LeagueEntryDTO {
   leagueId: string;
   summonerId: string;
   summonerName: string;
@@ -19,25 +19,24 @@ interface LeagueEntryDTO {
   miniSeries: MiniSeriesDTO;
 }
 
-interface MiniSeriesDTO {
+ interface MiniSeriesDTO {
   losses: number;
   progress: number;
   target: number;
   wins: number;
 }
 
-const getLeagueEntries = async (
+export const getLeagueEntries = async (
   encryptedSummonerId: string,
-): Promise<LeagueEntryDTO[] | null> => {
+): Promise<LeagueEntryDTO[]> => {
   try {
     const res = await axiod.get(
-      fixedEncodeURI(`https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/${encryptedSummonerId}?api_key=${config.apikey}`),
+      fixedEncodeURI(
+        `https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/${encryptedSummonerId}?api_key=${config.apikey}`,
+      ),
     );
     return res.data;
   } catch (error) {
-    console.log(error.response.data);
+    throw error;
   }
-  return null;
 };
-
-export default getLeagueEntries;

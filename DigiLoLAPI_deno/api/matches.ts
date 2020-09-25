@@ -1,7 +1,7 @@
 import { Router, Status } from "https://deno.land/x/oak/mod.ts";
 import axiod from "https://deno.land/x/axiod/mod.ts";
 import config from "../config.ts";
-import getSummoner from "../common/getSummoner.ts";
+import { getSummoner, SummonerDTO } from "../common/getSummoner.ts";
 import fixedEncodeURI from "../common/fixedEncodeURI.ts";
 import ChampionIdMap from "../common/ChampionIdMap.ts";
 import QueueTypeMap from "../common/QueueTypeMap.ts";
@@ -230,21 +230,19 @@ interface ParticipantTimelineDto {
 const getMatches = async (
   encryptedAccountId: string,
 ): Promise<MatchReferenceDto[]> => {
-  let matches: MatchReferenceDto[] = [];
   try {
     const res = await axiod.get(
       fixedEncodeURI(
         `https://kr.api.riotgames.com/lol/match/v4/matchlists/by-account/${encryptedAccountId}?api_key=${config.apikey}`,
       ),
     );
-    matches = res.data.matches as MatchReferenceDto[];
+    return res.data.matches as MatchReferenceDto[];
   } catch (err) {
-    console.log(err.response.data);
+    throw err;
   }
-  return matches;
 };
 
-const getGameData = async (matchId: number): Promise<MatchDto | null> => {
+const getGameData = async (matchId: number): Promise<MatchDto> => {
   try {
     const res = await axiod.get(
       fixedEncodeURI(
@@ -253,8 +251,7 @@ const getGameData = async (matchId: number): Promise<MatchDto | null> => {
     );
     return res.data as MatchDto;
   } catch (err) {
-    console.log(err.reponse.data);
-    return null;
+    throw err;
   }
 };
 
@@ -277,28 +274,50 @@ interface MatchData {
 
 const router = new Router({ prefix: "/api" });
 router.get("/matches", async (ctx) => {
-  let summonerName = ctx.request.url.searchParams.get("summonerName")!!;
-  const summoner = await getSummoner(summonerName);
-  if (!summoner) {
-    ctx.response.body = { error: "Cannot get summoner data" };
+  const summonerName = ctx.request.url.searchParams.get("summonerName")!!;
+  let summoner: SummonerDTO;
+  try {
+    summoner = await getSummoner(summonerName);
+  } catch (error) {
+    ctx.response.body = {
+      error: "Cannot get summoner data",
+      api: error.response.data,
+    };
     ctx.response.status = Status.NotFound;
     return;
   }
-  const matches = await getMatches(summoner.accountId);
+  let matches: MatchReferenceDto[];
+  try {
+    matches = await getMatches(summoner.accountId);
+  } catch (error) {
+    ctx.response.body = {
+      error: "Cannot get match data",
+      api: error.response.data,
+    };
+    ctx.response.status = Status.NotFound;
+    return;
+  }
 
   const matchObjList = [] as object[];
   const matchSize = (matches.length > 10) ? 10 : matches.length;
+  let i = 0;
   let winCount = 0;
-  for (let i = 0; i < matchSize; ++i) {
+  while (matchObjList.length < matchSize) {
     const match = matches[i];
+    ++i;
     if (match.queue < 400 || match.queue > 450) {
       continue;
     }
     //queueType
     const champId = match.champion;
-    const gameData = await getGameData(match.gameId);
-    if (!gameData) {
-      ctx.response.body = { error: "Cannot get game data" };
+    let gameData: MatchDto;
+    try {
+      gameData = await getGameData(match.gameId);
+    } catch (error) {
+      ctx.response.body = {
+        error: "Cannot get game data",
+        api: error.response.data,
+      };
       ctx.response.status = Status.NotFound;
       return;
     }

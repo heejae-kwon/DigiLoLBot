@@ -79,7 +79,11 @@ const spectator = async (client: Client, msg: Message, args: string[]) => {
 
     msg.channel.send(embed);
   } catch (error) {
-    console.log(error.response.data);
+    const errorMsg = new MessageEmbed()
+      .setDescription(
+        "```json\n" + `${JSON.stringify(error.response.data, null, 2)}` + "```",
+      );
+    msg.channel.send(errorMsg);
   }
 };
 

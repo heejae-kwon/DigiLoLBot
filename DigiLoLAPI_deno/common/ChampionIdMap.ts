@@ -19,8 +19,7 @@ class ChampionIdMap {
       }
       return true;
     } catch (error) {
-      console.log(error.response.data);
-      return false;
+      throw error;
     }
   }
   getChampionName(chapionId: number) {

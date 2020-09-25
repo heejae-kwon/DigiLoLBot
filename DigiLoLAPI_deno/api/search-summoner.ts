@@ -1,8 +1,11 @@
 import { Router, Status } from "https://deno.land/x/oak/mod.ts";
 import axiod from "https://deno.land/x/axiod/mod.ts";
 import config from "../config.ts";
-import getSummoner from "../common/getSummoner.ts";
-import getLeagueEntries from "../common/getLeagueEntries.ts";
+import { getSummoner, SummonerDTO } from "../common/getSummoner.ts";
+import {
+  getLeagueEntries,
+  LeagueEntryDTO,
+} from "../common/getLeagueEntries.ts";
 import fixedEncodeURI from "../common/fixedEncodeURI.ts";
 import ChampionIdMap from "../common/ChampionIdMap.ts";
 
@@ -20,7 +23,7 @@ interface ChampionMasteryDTO {
 
 const getBestChampionMastery = async (
   encryptedSummonerId: String,
-): Promise<ChampionMasteryDTO | null> => {
+): Promise<ChampionMasteryDTO> => {
   try {
     const res = await axiod.get(
       fixedEncodeURI(
@@ -28,13 +31,10 @@ const getBestChampionMastery = async (
       ),
     );
     const masteries: ChampionMasteryDTO[] = res.data;
-    if (masteries.length > 0) {
-      return masteries[0];
-    }
+    return masteries[0];
   } catch (error) {
-    console.log(error.response.data);
+    throw error;
   }
-  return null;
 };
 
 //response interface
@@ -55,22 +55,37 @@ interface LeagueEntryData {
 }
 const router = new Router({ prefix: "/api" });
 router.get("/search-summoner", async (ctx) => {
-  let summonerName = ctx.request.url.searchParams.get("summonerName")!!;
-  const summoner = await getSummoner(summonerName);
-  if (!summoner) {
-    ctx.response.body = { error: "Cannot get summoner data" };
+  const summonerName = ctx.request.url.searchParams.get("summonerName")!!;
+  let summoner: SummonerDTO;
+  try {
+    summoner = await getSummoner(summonerName);
+  } catch (error) {
+    ctx.response.body = {
+      error: "Cannot get summoner data",
+      api: error.response.data,
+    };
     ctx.response.status = Status.NotFound;
     return;
   }
-  const leagueEntries = await getLeagueEntries(summoner.id);
-  if (!leagueEntries) {
-    ctx.response.body = { error: "Cannot get league entries" };
+  let leagueEntries: LeagueEntryDTO[];
+  try {
+    leagueEntries = await getLeagueEntries(summoner.id);
+  } catch (error) {
+    ctx.response.body = {
+      error: "Cannot get league entries",
+      api: error.response.data,
+    };
     ctx.response.status = Status.NotFound;
     return;
   }
-  const bestChampMastery = await getBestChampionMastery(summoner.id);
-  if (!bestChampMastery) {
-    ctx.response.body = { error: "Cannot get champion mastery" };
+  let bestChampMastery: ChampionMasteryDTO;
+  try {
+    bestChampMastery = await getBestChampionMastery(summoner.id);
+  } catch (error) {
+    ctx.response.body = {
+      error: "Cannot get champion mastery",
+      api: error.response.data,
+    };
     ctx.response.status = Status.NotFound;
     return;
   }
