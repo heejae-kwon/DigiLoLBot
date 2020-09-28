@@ -43,7 +43,12 @@ deno run --allow-net ./index.ts
  ```
 * **Error Response:**
   * **Code:** 404 NOT FOUND
-  * **Content:** `ErrorResponse`(applSearchSummonerData
+  * **Content:** `ErrorResponse`(application/json)
+```typescript
+interface ErrorResponse {
+  error: "Fail getting champion rotations",
+  // Response json data from Riot api server
+  api: JSON;
 }
 ```
 
