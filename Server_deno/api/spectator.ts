@@ -74,6 +74,12 @@ const getCurrentGameInfo = async (
 };
 
 // response interface
+interface SpectatorData {
+  teams: TeamData[];
+  gameStartTime: number;
+  gameLength: number;
+  queueType: string;
+}
 interface ParticipantsData {
   championName: string;
   summonerName: string;
@@ -84,12 +90,6 @@ interface TeamData {
   teamName: "red" | "blue" | string;
   participants: ParticipantsData[];
   bannedChampions: string[];
-}
-interface SpectatorData {
-  teams: TeamData[];
-  gameStartTime: number;
-  gameLength: number;
-  queueType: string;
 }
 const router = new Router({ prefix: "/api" });
 router.get("/spectator", async (ctx) => {

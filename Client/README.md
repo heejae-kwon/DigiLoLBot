@@ -2,10 +2,10 @@
 > This project includes client part of [DigiLoLBot](https://github.com/heejae-kwon/DigiLoLBot)
 
 ## Preparation
-* Nodejs
-* Bot token for Discord app
-* DigiLoLBot Server
-* VSCode (for development)
+* [Node.js 12.0.0 or newer](https://nodejs.org/en/)
+* [Bot token for Discord app](https://discord.com/developers/applications)
+* [DigiLoLBot Server](https://github.com/heejae-kwon/DigiLoLBot/tree/master/Server_deno)
+* [VSCode](https://code.visualstudio.com/) (for development)
 
 ## Installation
 
