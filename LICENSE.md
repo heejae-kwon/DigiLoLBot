@@ -62,7 +62,7 @@
       "Contributor" shall mean Licensor and any individual or Legal Entity
       on behalf of whom a Contribution has been received by Licensor and
       subsequently incorporated within the Work.
-
+name of copyright owner
    2. Grant of Copyright License. Subject to the terms and conditions of
       this License, each Contributor hereby grants to You a perpetual,
       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
@@ -92,7 +92,7 @@
       meet the following conditions:
 
       (a) You must give any other recipients of the Work or
-          Derivative Works a copy of this License; and
+          Derivative Works a copy of this License; andㅜ
 
       (b) You must cause any modified files to carry prominent notices
           stating that You changed the files; and
@@ -186,7 +186,7 @@
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright [yyyy] [name of copyright owner]
+   Copyright [2020] [Heejae Kwon]
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
