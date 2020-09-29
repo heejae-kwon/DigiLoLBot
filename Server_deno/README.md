@@ -1,14 +1,22 @@
 # DigiLoLBot Deno Server
 > This project includes deno server which is a part of [DigiLoLBot](https://github.com/heejae-kwon/DigiLoLBot)
 
-## Preparation
+
+## Tech/framework used
+- [Typescript](https://www.typescriptlang.org)
+- [oak](https://github.com/oakserver/oak)
+- [axiod](https://github.com/roonie007/axiod)
+
+
+## Prerequisites
 * [Deno](https://deno.land/)
 * [Riot Development Api Key](https://developer.riotgames.com/docs/portal)
 * [VSCode](https://code.visualstudio.com/) (for development)
 
+
 ## Run
 1. Create ```config.ts``` file with following the ```config_form.ts```
-2. Then fill apikey property with Riot Development Api Key and set the port number.
+2. Then fill `apikey` property with Riot Development Api Key and set up the `port`.
 3. Run :
 ```sh
 deno run --allow-net ./index.ts
@@ -16,7 +24,7 @@ deno run --allow-net ./index.ts
 
 
 ## List of API call
-#### 1. Champion Rotations
+### 1. Champion Rotations
   Returns json data about champion rotations.
 
 * **URL**
@@ -52,7 +60,7 @@ interface ErrorResponse {
 }
 ```
 
-#### 2. Service Status
+### 2. Service Status
   Returns json data about service status.
 
 * **URL**
@@ -94,7 +102,8 @@ interface ErrorResponse {
   api: JSON;
 }
 ```
-#### 3. Matches
+
+### 3. Matches
   Returns json data about summoner matches.
 
 * **URL**
@@ -147,7 +156,8 @@ interface ErrorResponse {
   api: JSON;
 }
 ```
-#### 4. Search Summoner
+
+### 4. Search Summoner
   Returns json data about summoner information.
 
 * **URL**
@@ -203,7 +213,7 @@ interface ErrorResponse {
 }
 ```
 
-#### 5. Spectator
+### 5. Spectator
   Returns json data about spectating data.
 
 * **URL**
@@ -256,9 +266,19 @@ interface ErrorResponse {
 
 
 ## Updates
-
 * 1.0.0
     * First launch
 
 
+#### Anything else that seems useful
+- Currently, this app only supports KR server, Ranked Solo and Flex data
+
+## License
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+Made by [Heejae Kwon](https://github.com/heejae-kwon)
+[https://github.com/heejae-kwon/DigiLoLBot](https://github.com/heejae-kwon/DigiLoLBot)
 <!-- Markdown link & img dfn's -->
+
